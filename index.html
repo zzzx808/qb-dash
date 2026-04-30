@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QB Dash</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <h1>QB Dash</h1>
+    <p class="instructions">
+      Move your mouse to control the quarterback. Reach the right side of the field while avoiding defenders.
+    </p>
+
+    <div class="hud">
+      <div>
+        Round: <span id="roundValue">1</span>/<span id="maxRoundsValue">20</span>
+      </div>
+      <div>
+        Lives: <span id="livesValue">3</span>/<span id="maxLivesValue">3</span>
+      </div>
+      <div>Round Time Left: <span id="timerValue">0.0s</span></div>
+      <div>Total Game Time: <span id="totalTimerValue">0:00.0</span></div>
+      <div>Status: <span id="statusValue">Ready</span></div>
+    </div>
+    <div class="legend" aria-label="Defender behavior legend">
+      <span class="legend-chip legend-chip--anchor">Black = Hold</span>
+      <span class="legend-chip legend-chip--chaser">Red = Chase</span>
+      <span class="legend-chip legend-chip--roamer">Blue = Roam</span>
+    </div>
+
+    <div id="field" class="field" tabindex="0" aria-label="Top-down football field game area">
+      <div class="zone zone--start" aria-hidden="true">START ZONE</div>
+      <div class="zone zone--end" aria-hidden="true">END ZONE</div>
+      <div id="quarterback" class="qb" aria-hidden="true"></div>
+      <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+      <div id="overlay" class="overlay">CLICK TO START</div>
+    </div>
+
+    <button id="recaptureBtn" type="button" class="recapture-btn">
+      Re-capture Mouse
+    </button>
+    <p class="pointer-note">Press <strong>Esc</strong> anytime to release mouse control.</p>
+
+    <section class="panel win-panel hidden" id="winPanel" aria-label="Win panel">
+      <h2>Touchdown Champion</h2>
+      <p class="win-stats">
+        Time: <strong><span id="winTimeValue">0:00.0</span></strong>
+        · Lives left: <strong><span id="winLivesValue">0</span></strong>
+      </p>
+      <form id="winForm" class="win-form" autocomplete="off">
+        <label class="win-label" for="playerNameInput">Your name</label>
+        <input id="playerNameInput" class="win-input" maxlength="18" placeholder="e.g. Andre" />
+        <button type="submit" class="win-submit">Add to leaderboard</button>
+      </form>
+    </section>
+
+    <section class="panel leaderboard" aria-label="Leaderboard">
+      <div class="leaderboard-head">
+        <h2>Leaderboard</h2>
+        <button id="clearLeaderboardBtn" type="button" class="leaderboard-clear">Clear</button>
+      </div>
+      <ol id="leaderboardList" class="leaderboard-list"></ol>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
