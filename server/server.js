@@ -7,8 +7,32 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 5173;
-const DATA_DIR = path.join(__dirname, "data");
+const PORT = Number(process.env.PORT || 5173);
+const PROJECT_ROOT = path.join(__dirname, "..");
+
+function getWritableDataDir() {
+  const preferred = process.env.DATA_DIR ? String(process.env.DATA_DIR) : "";
+  const candidates = [
+    preferred,
+    path.join(PROJECT_ROOT, "server", "data"),
+    path.join(PROJECT_ROOT, "data"),
+    path.join("/tmp", "qb-dash")
+  ].filter(Boolean);
+
+  for (const dir of candidates) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.accessSync(dir, fs.constants.W_OK);
+      return dir;
+    } catch {
+      // keep trying
+    }
+  }
+  // Last resort (should almost never happen)
+  return path.join("/tmp", "qb-dash");
+}
+
+const DATA_DIR = getWritableDataDir();
 const DATA_FILE = path.join(DATA_DIR, "leaderboard.json");
 const MAX_ENTRIES = 50;
 
@@ -64,7 +88,7 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "32kb" }));
 
 // Static game files (one level up from /server).
-app.use(express.static(path.join(__dirname, "..")));
+app.use(express.static(PROJECT_ROOT));
 
 app.get("/api/leaderboard", (_req, res) => {
   const entries = sortEntries(readEntries()).slice(0, 10);
@@ -95,7 +119,17 @@ app.get("/health", (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`QB Dash server running on http://localhost:${PORT}`);
+  console.log(`QB Dash server running on port ${PORT}`);
+  console.log(`Leaderboard data file: ${DATA_FILE}`);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("uncaughtException", err);
+  process.exitCode = 1;
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("unhandledRejection", err);
+  process.exitCode = 1;
 });
 
